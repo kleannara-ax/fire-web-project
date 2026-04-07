@@ -1,0 +1,125 @@
+package com.company.core.security;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * JWT Bearer 토큰 인증 필터
+ * <p>
+ * Authorization: Bearer {token} 헤더에서 토큰을 추출하여
+ * SecurityContextHolder에 Authentication을 설정한다.
+ */
+@Slf4j
+@RequiredArgsConstructor
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    public static final String AUTH_COOKIE_NAME = "FIREWEB_AUTH";
+
+    private final JwtTokenProvider jwtTokenProvider;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
+        String token = resolveToken(request);
+
+        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+            try {
+                String username = jwtTokenProvider.getUsername(token);
+                String role = jwtTokenProvider.getRole(token);
+
+                // ROLE_ prefix 자동 추가
+                String authority = (role != null && !role.startsWith("ROLE_"))
+                        ? "ROLE_" + role
+                        : (role != null ? role : "ROLE_USER");
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                List.of(new SimpleGrantedAuthority(authority))
+                        );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.debug("JWT authentication set for user: {}", username);
+
+                // Sliding expiration: mutation 요청 시 새 토큰 발급
+                if (shouldRefreshToken(request.getMethod())) {
+                    String rawRole = (role != null && role.startsWith("ROLE_")) ? role.substring(5) : role;
+                    String refreshed = jwtTokenProvider.generateToken(username, rawRole != null ? rawRole : "USER");
+                    response.addHeader(HttpHeaders.SET_COOKIE, buildAuthCookie(refreshed, request.isSecure()).toString());
+                    response.setHeader("X-Auth-Token", refreshed);
+                }
+
+            } catch (Exception e) {
+                log.warn("JWT authentication failed: {}", e.getMessage());
+                SecurityContextHolder.clearContext();
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Authorization: Bearer {token} 에서 토큰 추출
+     */
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie cookie : cookies) {
+            if (cookie != null && AUTH_COOKIE_NAME.equals(cookie.getName()) && StringUtils.hasText(cookie.getValue())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    public static ResponseCookie buildAuthCookie(String token, boolean secure) {
+        return ResponseCookie.from(AUTH_COOKIE_NAME, token)
+                .httpOnly(true)
+                .secure(secure)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(60 * 60)
+                .build();
+    }
+
+    public static ResponseCookie clearAuthCookie(boolean secure) {
+        return ResponseCookie.from(AUTH_COOKIE_NAME, "")
+                .httpOnly(true)
+                .secure(secure)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
+    }
+
+    private boolean shouldRefreshToken(String method) {
+        if (method == null) return false;
+        return "POST".equalsIgnoreCase(method)
+                || "PUT".equalsIgnoreCase(method)
+                || "PATCH".equalsIgnoreCase(method)
+                || "DELETE".equalsIgnoreCase(method);
+    }
+}

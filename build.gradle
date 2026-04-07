@@ -1,0 +1,84 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5' apply false
+    id 'io.spring.dependency-management' version '1.1.5' apply false
+}
+
+tasks.register('verifyUtf8') {
+    group = 'verification'
+    description = 'Fails if text source files are not valid UTF-8.'
+    doLast {
+        def badFiles = []
+        def decoder = java.nio.charset.StandardCharsets.UTF_8
+                .newDecoder()
+                .onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+
+        def tree = fileTree(rootDir) {
+            include '**/*.java', '**/*.kt', '**/*.groovy'
+            include '**/*.html', '**/*.css', '**/*.js', '**/*.ts'
+            include '**/*.json', '**/*.xml', '**/*.yml', '**/*.yaml'
+            include '**/*.properties', '**/*.md', '**/*.sql'
+            exclude '**/.git/**', '**/.gradle/**', '**/build/**', '**/out/**', '**/target/**'
+            exclude '**/node_modules/**', '**/logs/**', '**/uploads/**'
+        }
+
+        tree.files.each { f ->
+            try {
+                decoder.reset()
+                decoder.decode(java.nio.ByteBuffer.wrap(f.bytes))
+            } catch (Exception ignored) {
+                badFiles << f
+            }
+        }
+
+        if (!badFiles.isEmpty()) {
+            def list = badFiles.collect { "- ${it.absolutePath}" }.join('\n')
+            throw new GradleException("Invalid UTF-8 files detected:\n${list}\n\nFix encoding to UTF-8 (no BOM).")
+        }
+    }
+}
+
+// 전체 서브모듈 공통 설정
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'com.company'
+    version = '1.0.0'
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:3.2.5"
+        }
+    }
+
+    dependencies {
+        // 공통 Lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        // 공통 테스트
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    // 공통 컴파일 옵션
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs << '-parameters'
+    }
+}
