@@ -251,7 +251,7 @@ public class MobileInspectionController {
                 .orElseThrow(() -> new com.company.core.exception.ResourceNotFoundException(MSG_NOT_FOUND));
 
         try {
-            Path dir = Paths.get("./uploads/extinguishers");
+            Path dir = Paths.get("/data/upload/module_fire/extinguishers");
             Files.createDirectories(dir);
 
             String serial = e.getSerialNumber();
@@ -300,7 +300,7 @@ public class MobileInspectionController {
             if (clean.contains("..") || clean.contains("/")) {
                 return ResponseEntity.badRequest().build();
             }
-            Path base = Paths.get("./uploads/extinguishers").toAbsolutePath().normalize();
+            Path base = Paths.get("/data/upload/module_fire/extinguishers").toAbsolutePath().normalize();
             Path file = base.resolve(clean).normalize();
             if (!file.startsWith(base) || !Files.exists(file)) {
                 return ResponseEntity.notFound().build();
@@ -529,7 +529,7 @@ public class MobileInspectionController {
                 .orElseThrow(() -> new com.company.core.exception.ResourceNotFoundException(MSG_NOT_FOUND));
 
         try {
-            Path dir = Paths.get("./uploads/hydrants");
+            Path dir = Paths.get("/data/upload/module_fire/hydrants");
             Files.createDirectories(dir);
 
             String serial = h.getSerialNumber();
@@ -577,7 +577,7 @@ public class MobileInspectionController {
             if (clean.contains("..") || clean.contains("/")) {
                 return ResponseEntity.badRequest().build();
             }
-            Path base = Paths.get("./uploads/hydrants").toAbsolutePath().normalize();
+            Path base = Paths.get("/data/upload/module_fire/hydrants").toAbsolutePath().normalize();
             Path file = base.resolve(clean).normalize();
             if (!file.startsWith(base) || !Files.exists(file)) {
                 return ResponseEntity.notFound().build();
@@ -744,7 +744,7 @@ public class MobileInspectionController {
                 .findTopByReceiver_ReceiverIdOrderByInspectionDateDescInspectionIdDesc(id)
                 .orElseThrow(() -> new com.company.core.exception.ResourceNotFoundException(MSG_NOT_FOUND));
 
-        return uploadInspectionImage(file, Paths.get("./uploads/receiver-inspections"),
+        return uploadInspectionImage(file, Paths.get("/data/upload/module_fire/receiver-inspections"),
                 "/fire-api/minspection/files/receivers/", inspection::updateImagePath, () -> {
                     receiverInspectionRepository.save(inspection);
                 });
@@ -752,7 +752,7 @@ public class MobileInspectionController {
 
     @GetMapping("/files/receivers/{filename:.+}")
     public ResponseEntity<Resource> getReceiverImageFile(@PathVariable String filename) {
-        return serveInspectionImage("./uploads/receiver-inspections", filename);
+        return serveInspectionImage("/data/upload/module_fire/receiver-inspections", filename);
     }
 
     @GetMapping("/pumps/by-key")
@@ -874,7 +874,7 @@ public class MobileInspectionController {
                 .findTopByPump_PumpIdOrderByInspectionDateDescInspectionIdDesc(id)
                 .orElseThrow(() -> new com.company.core.exception.ResourceNotFoundException(MSG_NOT_FOUND));
 
-        return uploadInspectionImage(file, Paths.get("./uploads/pump-inspections"),
+        return uploadInspectionImage(file, Paths.get("/data/upload/module_fire/pump-inspections"),
                 "/fire-api/minspection/files/pumps/", inspection::updateImagePath, () -> {
                     pumpInspectionRepository.save(inspection);
                 });
@@ -882,7 +882,7 @@ public class MobileInspectionController {
 
     @GetMapping("/files/pumps/{filename:.+}")
     public ResponseEntity<Resource> getPumpImageFile(@PathVariable String filename) {
-        return serveInspectionImage("./uploads/pump-inspections", filename);
+        return serveInspectionImage("/data/upload/module_fire/pump-inspections", filename);
     }
 
 

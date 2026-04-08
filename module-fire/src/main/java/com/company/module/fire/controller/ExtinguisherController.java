@@ -90,7 +90,7 @@ public class ExtinguisherController {
         }
 
         try {
-            Path dir = Paths.get("./uploads/extinguishers");
+            Path dir = Paths.get("/data/upload/module_fire/extinguishers");
             Files.createDirectories(dir);
 
             ExtinguisherResponse detail = extinguisherService.getExtinguisherDetail(id);
@@ -140,7 +140,7 @@ public class ExtinguisherController {
             if (clean.contains("..") || clean.contains("/")) {
                 return ResponseEntity.badRequest().build();
             }
-            Path base = Paths.get("./uploads/extinguishers").toAbsolutePath().normalize();
+            Path base = Paths.get("/data/upload/module_fire/extinguishers").toAbsolutePath().normalize();
             Path file = base.resolve(clean).normalize();
             if (!file.startsWith(base) || !Files.exists(file)) {
                 return ResponseEntity.notFound().build();

@@ -143,7 +143,7 @@ public class FireReceiverController {
         }
 
         try {
-            Path dir = Paths.get("./uploads/receiver-inspections");
+            Path dir = Paths.get("/data/upload/module_fire/receiver-inspections");
             Files.createDirectories(dir);
 
             String original = file.getOriginalFilename();
@@ -180,7 +180,7 @@ public class FireReceiverController {
             if (clean.contains("..") || clean.contains("/")) {
                 return ResponseEntity.badRequest().build();
             }
-            Path base = Paths.get("./uploads/receiver-inspections").toAbsolutePath().normalize();
+            Path base = Paths.get("/data/upload/module_fire/receiver-inspections").toAbsolutePath().normalize();
             Path file = base.resolve(clean).normalize();
             if (!file.startsWith(base) || !Files.exists(file)) {
                 return ResponseEntity.notFound().build();

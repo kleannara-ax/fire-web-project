@@ -99,7 +99,7 @@ public class FireHydrantController {
         }
 
         try {
-            Path dir = Paths.get("./uploads/hydrants");
+            Path dir = Paths.get("/data/upload/module_fire/hydrants");
             Files.createDirectories(dir);
 
             FireHydrantResponse detail = fireHydrantService.getHydrantDetail(id);
@@ -148,7 +148,7 @@ public class FireHydrantController {
             if (clean.contains("..") || clean.contains("/")) {
                 return ResponseEntity.badRequest().build();
             }
-            Path base = Paths.get("./uploads/hydrants").toAbsolutePath().normalize();
+            Path base = Paths.get("/data/upload/module_fire/hydrants").toAbsolutePath().normalize();
             Path file = base.resolve(clean).normalize();
             if (!file.startsWith(base) || !Files.exists(file)) {
                 return ResponseEntity.notFound().build();

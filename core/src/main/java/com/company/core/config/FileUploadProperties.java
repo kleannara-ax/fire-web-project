@@ -16,14 +16,14 @@ import org.springframework.stereotype.Component;
 public class FileUploadProperties {
 
     /** 업로드 기본 경로 */
-    private String basePath = "./uploads";
+    private String basePath = "/data/upload/module_fire";
 
     /** 소화기 이미지 경로 */
-    private String extinguishers = "./uploads/extinguishers";
+    private String extinguishers = "/data/upload/module_fire/extinguishers";
 
     /** 소화전 이미지 경로 */
-    private String hydrants = "./uploads/hydrants";
+    private String hydrants = "/data/upload/module_fire/hydrants";
 
     /** 점검 이미지 경로 */
-    private String inspections = "./uploads/inspections";
+    private String inspections = "/data/upload/module_fire/inspections";
 }

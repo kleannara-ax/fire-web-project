@@ -76,7 +76,7 @@ fireweb:
   cors:
     allowed-origins: []
   upload:
-    base-path: ${UPLOAD_BASE_PATH:./uploads}
-    extinguishers: ${UPLOAD_BASE_PATH:./uploads}/extinguishers
-    hydrants: ${UPLOAD_BASE_PATH:./uploads}/hydrants
-    inspections: ${UPLOAD_BASE_PATH:./uploads}/inspections
+    base-path: ${UPLOAD_BASE_PATH:/data/upload/module_fire}
+    extinguishers: ${UPLOAD_BASE_PATH:/data/upload/module_fire}/extinguishers
+    hydrants: ${UPLOAD_BASE_PATH:/data/upload/module_fire}/hydrants
+    inspections: ${UPLOAD_BASE_PATH:/data/upload/module_fire}/inspections

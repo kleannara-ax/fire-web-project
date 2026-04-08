@@ -13,7 +13,7 @@ module.exports = {
         DB_USERNAME: 'platform_user',
         DB_PASSWORD: 'Kleannara12#',
         JWT_SECRET: 'fireweb-secret-key-for-jwt-authentication-2024-minimum-32-chars',
-        UPLOAD_BASE_PATH: '/home/user/webapp/core/uploads'
+        UPLOAD_BASE_PATH: '/data/upload/module_fire'
       },
       watch: false,
       instances: 1,
