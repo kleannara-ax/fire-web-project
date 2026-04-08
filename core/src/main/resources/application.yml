@@ -5,9 +5,9 @@ spring:
     name: fireweb
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/fireweb?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Seoul
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:platform_db}?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=Asia/Seoul
+    username: ${DB_USERNAME:platform_user}
+    password: ${DB_PASSWORD:Kleannara12#}
     driver-class-name: org.mariadb.jdbc.Driver
     hikari:
       pool-name: FireWebHikariPool

@@ -7,8 +7,11 @@ module.exports = {
       cwd: '/home/user/webapp',
       env: {
         JAVA_HOME: '/usr/lib/jvm/java-17-openjdk-amd64',
-        DB_USERNAME: 'fireweb',
-        DB_PASSWORD: 'fireweb1234',
+        DB_HOST: 'localhost',
+        DB_PORT: '3306',
+        DB_NAME: 'platform_db',
+        DB_USERNAME: 'platform_user',
+        DB_PASSWORD: 'Kleannara12#',
         JWT_SECRET: 'fireweb-secret-key-for-jwt-authentication-2024-minimum-32-chars',
         UPLOAD_BASE_PATH: '/home/user/webapp/core/uploads'
       },
